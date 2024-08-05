@@ -1,15 +1,17 @@
 package dispatcher
 
 import (
-	"log"
 	"math"
 	"math/rand"
 	"sync"
 	"time"
+
+	"github.com/wagslane/go-rabbitmq/internal/logger"
 )
 
 // Dispatcher -
 type Dispatcher struct {
+	log           logger.Logger
 	subscribers   map[int]dispatchSubscriber
 	subscribersMu *sync.Mutex
 }
@@ -20,8 +22,9 @@ type dispatchSubscriber struct {
 }
 
 // NewDispatcher -
-func NewDispatcher() *Dispatcher {
+func NewDispatcher(logger logger.Logger) *Dispatcher {
 	return &Dispatcher{
+		log:           logger,
 		subscribers:   make(map[int]dispatchSubscriber),
 		subscribersMu: &sync.Mutex{},
 	}
@@ -34,7 +37,7 @@ func (d *Dispatcher) Dispatch(err error) error {
 	for _, subscriber := range d.subscribers {
 		select {
 		case <-time.After(time.Second * 5):
-			log.Println("Unexpected rabbitmq error: timeout in dispatch")
+			d.log.Warnf("Unexpected rabbitmq error: timeout in dispatch")
 		case subscriber.notifyCancelOrCloseChan <- err:
 		}
 	}

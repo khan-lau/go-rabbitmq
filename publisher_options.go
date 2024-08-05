@@ -1,6 +1,9 @@
 package rabbitmq
 
-import amqp "github.com/rabbitmq/amqp091-go"
+import (
+	klog "github.com/khan-lau/kutils/logger"
+	amqp "github.com/rabbitmq/amqp091-go"
+)
 
 // PublisherOptions are used to describe a publisher's configuration.
 // Logger is a custom logging interface.
@@ -24,7 +27,7 @@ func getDefaultPublisherOptions() PublisherOptions {
 			Args:       Table{},
 			Declare:    false,
 		},
-		Logger:      stdDebugLogger{},
+		Logger:      stdDebugLogger{log: klog.LoggerInstanceOnlyConsole(int8(klog.DebugLevel))},
 		ConfirmMode: false,
 	}
 }
@@ -32,7 +35,7 @@ func getDefaultPublisherOptions() PublisherOptions {
 // WithPublisherOptionsLogging sets logging to true on the publisher options
 // and sets the
 func WithPublisherOptionsLogging(options *PublisherOptions) {
-	options.Logger = &stdDebugLogger{}
+	options.Logger = &stdDebugLogger{log: klog.LoggerInstanceOnlyConsole(int8(klog.DebugLevel))}
 }
 
 // WithPublisherOptionsLogger sets logging to a custom interface.

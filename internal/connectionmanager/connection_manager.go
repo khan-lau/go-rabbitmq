@@ -64,7 +64,7 @@ func NewConnectionManager(resolver Resolver, conf amqp.Config, log logger.Logger
 		ReconnectInterval:   reconnectInterval,
 		reconnectionCount:   0,
 		reconnectionCountMu: &sync.Mutex{},
-		dispatcher:          dispatcher.NewDispatcher(),
+		dispatcher:          dispatcher.NewDispatcher(log),
 	}
 	go connManager.startNotifyClose()
 	return &connManager, nil

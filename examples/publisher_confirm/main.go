@@ -3,22 +3,23 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/khan-lau/kutils/logger"
 	rabbitmq "github.com/wagslane/go-rabbitmq"
 )
 
 func main() {
+	glog := logger.LoggerInstanceOnlyConsole(int8(logger.DebugLevel))
 	conn, err := rabbitmq.NewConn(
 		"amqp://guest:guest@localhost",
 		rabbitmq.WithConnectionOptionsLogging,
 	)
 	if err != nil {
-		log.Fatal(err)
+		glog.F("{}", err.Error())
 	}
 	defer conn.Close()
 
@@ -30,12 +31,12 @@ func main() {
 		rabbitmq.WithPublisherOptionsConfirm,
 	)
 	if err != nil {
-		log.Fatal(err)
+		glog.F("{}", err.Error())
 	}
 	defer publisher.Close()
 
 	publisher.NotifyReturn(func(r rabbitmq.Return) {
-		log.Printf("message returned from server: %s", string(r.Body))
+		glog.D("message returned from server: {}", string(r.Body))
 	})
 
 	// block main thread - wait for shutdown signal
@@ -67,7 +68,7 @@ func main() {
 				rabbitmq.WithPublishOptionsExchange("events"),
 			)
 			if err != nil {
-				log.Println(err)
+				glog.E("{}", err.Error())
 				continue
 			} else if len(confirms) == 0 || confirms[0] == nil {
 				fmt.Println("message publishing not confirmed")
@@ -76,7 +77,7 @@ func main() {
 			fmt.Println("message published")
 			ok, err := confirms[0].WaitContext(context.Background())
 			if err != nil {
-				log.Println(err)
+				glog.E("{}", err.Error())
 			}
 			if ok {
 				fmt.Println("message publishing confirmed")

@@ -1,6 +1,7 @@
 package rabbitmq
 
 import (
+	klog "github.com/khan-lau/kutils/logger"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/wagslane/go-rabbitmq/internal/logger"
 )
@@ -29,7 +30,7 @@ func getDefaultConsumerOptions(queueName string) ConsumerOptions {
 		ExchangeOptions: []ExchangeOptions{},
 		Concurrency:     1,
 		CloseGracefully: true,
-		Logger:          stdDebugLogger{},
+		Logger:          stdDebugLogger{log: klog.LoggerInstanceOnlyConsole(int8(klog.DebugLevel))},
 		QOSPrefetch:     10,
 		QOSGlobal:       false,
 	}
@@ -286,7 +287,7 @@ func WithConsumerOptionsConsumerNoWait(options *ConsumerOptions) {
 
 // WithConsumerOptionsLogging uses a default logger that writes to std out
 func WithConsumerOptionsLogging(options *ConsumerOptions) {
-	options.Logger = &stdDebugLogger{}
+	options.Logger = &stdDebugLogger{log: klog.LoggerInstanceOnlyConsole(int8(klog.DebugLevel))}
 }
 
 // WithConsumerOptionsLogger sets logging to a custom interface.

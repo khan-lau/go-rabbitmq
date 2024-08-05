@@ -2,21 +2,23 @@ package main
 
 import (
 	"fmt"
-	"log"
+
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/khan-lau/kutils/logger"
 	rabbitmq "github.com/wagslane/go-rabbitmq"
 )
 
 func main() {
+	glog := logger.LoggerInstanceOnlyConsole(int8(logger.DebugLevel))
 	conn, err := rabbitmq.NewConn(
 		"amqp://guest:guest@localhost",
 		rabbitmq.WithConnectionOptionsLogging,
 	)
 	if err != nil {
-		log.Fatal(err)
+		glog.F("{}", err.Error())
 	}
 	defer conn.Close()
 
@@ -28,7 +30,7 @@ func main() {
 		rabbitmq.WithConsumerOptionsExchangeDeclare,
 	)
 	if err != nil {
-		log.Fatal(err)
+		glog.F("{}", err.Error())
 	}
 
 	sigs := make(chan os.Signal, 1)
@@ -48,11 +50,12 @@ func main() {
 
 	// block main thread - wait for shutdown signal
 	err = consumer.Run(func(d rabbitmq.Delivery) rabbitmq.Action {
-		log.Printf("consumed: %v", string(d.Body))
+		glog.I("consumed: {}", string(d.Body))
+
 		// rabbitmq.Ack, rabbitmq.NackDiscard, rabbitmq.NackRequeue
 		return rabbitmq.Ack
 	})
 	if err != nil {
-		log.Fatal(err)
+		glog.F("{}", err.Error())
 	}
 }

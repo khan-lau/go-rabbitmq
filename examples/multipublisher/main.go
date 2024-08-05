@@ -3,22 +3,24 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/khan-lau/kutils/logger"
 	rabbitmq "github.com/wagslane/go-rabbitmq"
 )
 
 func main() {
+	glog := logger.LoggerInstanceOnlyConsole(int8(logger.DebugLevel))
 	conn, err := rabbitmq.NewConn(
 		"amqp://guest:guest@localhost",
 		rabbitmq.WithConnectionOptionsLogging,
 	)
 	if err != nil {
-		log.Fatal(err)
+		glog.F("{}", err.Error())
 	}
 	defer conn.Close()
 
@@ -29,16 +31,16 @@ func main() {
 		rabbitmq.WithPublisherOptionsExchangeDeclare,
 	)
 	if err != nil {
-		log.Fatal(err)
+		glog.F("{}", err.Error())
 	}
 	defer publisher.Close()
 
 	publisher.NotifyReturn(func(r rabbitmq.Return) {
-		log.Printf("message returned from server: %s", string(r.Body))
+		glog.D("message returned from server: {}", string(r.Body))
 	})
 
 	publisher.NotifyPublish(func(c rabbitmq.Confirmation) {
-		log.Printf("message confirmed from server. tag: %v, ack: %v", c.DeliveryTag, c.Ack)
+		glog.D("message confirmed from server. tag: {}, ack: {}", c.DeliveryTag, c.Ack)
 	})
 
 	publisher2, err := rabbitmq.NewPublisher(
@@ -48,16 +50,16 @@ func main() {
 		rabbitmq.WithPublisherOptionsExchangeDeclare,
 	)
 	if err != nil {
-		log.Fatal(err)
+		glog.F("{}", err.Error())
 	}
 	defer publisher2.Close()
 
 	publisher2.NotifyReturn(func(r rabbitmq.Return) {
-		log.Printf("message returned from server: %s", string(r.Body))
+		glog.D("message returned from server: {}", string(r.Body))
 	})
 
 	publisher2.NotifyPublish(func(c rabbitmq.Confirmation) {
-		log.Printf("message confirmed from server. tag: %v, ack: %v", c.DeliveryTag, c.Ack)
+		glog.D("message confirmed from server. tag: {}, ack: {}", c.DeliveryTag, c.Ack)
 	})
 
 	// block main thread - wait for shutdown signal
@@ -89,7 +91,7 @@ func main() {
 				rabbitmq.WithPublishOptionsExchange("events"),
 			)
 			if err != nil {
-				log.Println(err)
+				glog.E("{}", err.Error())
 			}
 			err = publisher2.PublishWithContext(
 				context.Background(),
@@ -101,7 +103,7 @@ func main() {
 				rabbitmq.WithPublishOptionsExchange("events"),
 			)
 			if err != nil {
-				log.Println(err)
+				glog.E("{}", err.Error())
 			}
 		case <-done:
 			fmt.Println("stopping publisher")

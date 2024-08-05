@@ -1,6 +1,10 @@
 package rabbitmq
 
-import "time"
+import (
+	"time"
+
+	klog "github.com/khan-lau/kutils/logger"
+)
 
 // ConnectionOptions are used to describe how a new consumer will be created.
 type ConnectionOptions struct {
@@ -13,7 +17,7 @@ type ConnectionOptions struct {
 func getDefaultConnectionOptions() ConnectionOptions {
 	return ConnectionOptions{
 		ReconnectInterval: time.Second * 5,
-		Logger:            stdDebugLogger{},
+		Logger:            stdDebugLogger{log: klog.LoggerInstanceOnlyConsole(int8(klog.DebugLevel))},
 		Config:            Config{},
 	}
 }
@@ -28,7 +32,7 @@ func WithConnectionOptionsReconnectInterval(interval time.Duration) func(options
 // WithConnectionOptionsLogging sets logging to true on the consumer options
 // and sets the
 func WithConnectionOptionsLogging(options *ConnectionOptions) {
-	options.Logger = stdDebugLogger{}
+	options.Logger = stdDebugLogger{log: klog.LoggerInstanceOnlyConsole(int8(klog.DebugLevel))}
 }
 
 // WithConnectionOptionsLogger sets logging to true on the consumer options
