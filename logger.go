@@ -3,8 +3,8 @@ package rabbitmq
 import (
 	"fmt"
 	// "log"
+	"github.com/khan-lau/go-rabbitmq/internal/logger"
 	klog "github.com/khan-lau/kutils/logger"
-	"github.com/wagslane/go-rabbitmq/internal/logger"
 )
 
 // Logger is describes a logging structure. It can be set using

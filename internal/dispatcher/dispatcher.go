@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wagslane/go-rabbitmq/internal/logger"
+	"github.com/khan-lau/go-rabbitmq/internal/logger"
 )
 
 // Dispatcher -

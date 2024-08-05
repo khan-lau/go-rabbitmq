@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 
+	rabbitmq "github.com/khan-lau/go-rabbitmq"
 	"github.com/khan-lau/kutils/logger"
-	rabbitmq "github.com/wagslane/go-rabbitmq"
 )
 
 // errorLogger is used in WithPublisherOptionsLogger to create a custom logger

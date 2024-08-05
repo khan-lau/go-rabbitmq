@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	rabbitmq "github.com/khan-lau/go-rabbitmq"
 	"github.com/khan-lau/kutils/logger"
-	rabbitmq "github.com/wagslane/go-rabbitmq"
 )
 
 func main() {
